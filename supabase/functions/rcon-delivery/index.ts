@@ -230,9 +230,9 @@ serve(async (req) => {
       .eq("id", orderId);
 
     const deliveryLogs: Array<{ server: string; command: string; success: boolean; response?: string; error?: string }> = [];
-    let allSuccessful = true;
+    let deliverySucceeded = false;
 
-    // Execute commands on each server
+    // Execute commands with failover - try servers in priority order
     for (const server of servers) {
       const password = rconPasswords[server.id] || rconPasswords[server.name] || "";
       
@@ -244,16 +244,21 @@ serve(async (req) => {
           success: false,
           error: "No RCON password configured",
         });
-        allSuccessful = false;
-        continue;
+        continue; // Try next server
       }
 
+      let serverSuccess = true;
+
       for (const cmd of commands) {
-        // Replace placeholders in command
+        // Replace placeholders in command - support multiple formats
         const processedCommand = cmd.command_text
-          .replace(/{player}/g, recipientIgn)
-          .replace(/{quantity}/g, String(order.quantity))
-          .replace(/{product}/g, order.products?.name || "");
+          .replace(/{player}/gi, recipientIgn)
+          .replace(/{IGN}/gi, recipientIgn)
+          .replace(/{username}/gi, recipientIgn)
+          .replace(/{quantity}/gi, String(order.quantity))
+          .replace(/{AMOUNT}/gi, String(order.quantity))
+          .replace(/{product}/gi, order.products?.name || "")
+          .replace(/{product_name}/gi, order.products?.name || "");
 
         // Wait for delay if specified
         if (cmd.delay_ms > 0) {
@@ -288,8 +293,66 @@ serve(async (req) => {
         });
 
         if (!result.success) {
-          allSuccessful = false;
+          serverSuccess = false;
+          console.log(`Command failed on ${server.name}, will try next server if available`);
+          break; // Stop executing commands on this server, try next
         }
+      }
+
+      if (serverSuccess) {
+        deliverySucceeded = true;
+        console.log(`All commands executed successfully on ${server.name}`);
+        break; // Stop trying other servers, delivery succeeded
+      }
+    }
+
+    // If no server worked, try to queue for later delivery
+    if (!deliverySucceeded) {
+      console.log("All servers failed, checking if player is online for queue");
+      
+      // Check if player is online
+      const { data: playerStatus } = await supabase
+        .from("player_status")
+        .select("online")
+        .eq("minecraft_ign", recipientIgn)
+        .single();
+
+      if (!playerStatus?.online) {
+        // Queue for later delivery
+        const { error: queueError } = await supabase
+          .from("delivery_queue")
+          .upsert(
+            {
+              order_id: orderId,
+              minecraft_ign: recipientIgn,
+              status: "queued",
+              attempt_count: 1,
+              last_attempt_at: new Date().toISOString(),
+              error_message: "Initial delivery failed, queued for retry",
+            },
+            { onConflict: "order_id" }
+          );
+
+        if (queueError) {
+          console.error("Failed to queue delivery:", queueError);
+        } else {
+          console.log("Delivery queued for later retry");
+        }
+
+        await supabase
+          .from("orders")
+          .update({ delivery_status: "queued" })
+          .eq("id", orderId);
+
+        return new Response(
+          JSON.stringify({
+            success: false,
+            queued: true,
+            logs: deliveryLogs,
+            message: "Player offline, delivery queued for when they join",
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
     }
 
@@ -297,16 +360,16 @@ serve(async (req) => {
     await supabase
       .from("orders")
       .update({
-        delivery_status: allSuccessful ? "delivered" : "failed",
+        delivery_status: deliverySucceeded ? "delivered" : "failed",
         delivery_log: deliveryLogs,
       })
       .eq("id", orderId);
 
-    console.log(`Delivery completed. Success: ${allSuccessful}`);
+    console.log(`Delivery completed. Success: ${deliverySucceeded}`);
 
     return new Response(
       JSON.stringify({
-        success: allSuccessful,
+        success: deliverySucceeded,
         logs: deliveryLogs,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
