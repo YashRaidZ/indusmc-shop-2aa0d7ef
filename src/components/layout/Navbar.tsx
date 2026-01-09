@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingCart, Gamepad2 } from "lucide-react";
+import { Menu, X, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CartSheet } from "@/components/cart/CartSheet";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -51,12 +52,9 @@ export function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="neon-outline" size="sm">
-              <ShoppingCart className="h-4 w-4 mr-1" />
-              Cart
-            </Button>
-            <Button variant="neon" size="sm">
-              Buy Ranks
+            <CartSheet />
+            <Button variant="neon" size="sm" asChild>
+              <Link to="/store">Buy Ranks</Link>
             </Button>
           </div>
 
@@ -89,12 +87,9 @@ export function Navbar() {
                 </Link>
               ))}
               <div className="flex gap-2 mt-4 px-4">
-                <Button variant="neon-outline" size="sm" className="flex-1">
-                  <ShoppingCart className="h-4 w-4 mr-1" />
-                  Cart
-                </Button>
-                <Button variant="neon" size="sm" className="flex-1">
-                  Buy Ranks
+                <CartSheet />
+                <Button variant="neon" size="sm" className="flex-1" asChild>
+                  <Link to="/store">Buy Ranks</Link>
                 </Button>
               </div>
             </div>
