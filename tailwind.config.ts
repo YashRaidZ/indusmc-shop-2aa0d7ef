@@ -66,6 +66,7 @@ export default {
       },
       fontFamily: {
         pixel: ["'Press Start 2P'", "cursive"],
+        body: ["Inter", "sans-serif"],
         sans: ["Inter", "sans-serif"],
       },
       borderRadius: {
