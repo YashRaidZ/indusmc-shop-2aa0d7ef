@@ -8,7 +8,6 @@ import { CartProvider } from "@/hooks/useCart";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Store from "./pages/Store";
-import Ranks from "./pages/Ranks";
 import Rules from "./pages/Rules";
 import Support from "./pages/Support";
 import Auth from "./pages/Auth";
@@ -36,7 +35,6 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/store" element={<Store />} />
-            <Route path="/ranks" element={<Ranks />} />
             <Route path="/rules" element={<Rules />} />
             <Route path="/support" element={<Support />} />
             <Route path="/auth" element={<Auth />} />

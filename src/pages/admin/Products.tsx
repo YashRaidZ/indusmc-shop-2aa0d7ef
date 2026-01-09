@@ -29,7 +29,8 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Terminal } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<"products">;
@@ -416,14 +417,26 @@ export default function AdminProducts() {
                           variant="ghost"
                           size="icon"
                           onClick={() => openEditDialog(product)}
+                          title="Edit product"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
+                          asChild
+                          title="Manage delivery commands"
+                        >
+                          <Link to={`/admin/products/${product.id}/commands`}>
+                            <Terminal className="h-4 w-4 text-secondary" />
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleDelete(product.id)}
                           className="text-destructive hover:text-destructive"
+                          title="Delete product"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
