@@ -58,7 +58,6 @@ export default function AdminSettings() {
       if (!e3) tableCount++;
       const { error: e4 } = await supabase.from("rcon_servers").select("id").limit(1);
       if (!e4) tableCount++;
-      }
 
       setHealth({
         rcon: {
@@ -67,7 +66,7 @@ export default function AdminSettings() {
           enabledCount: servers?.filter((s) => s.enabled).length || 0,
         },
         database: {
-          healthy: tableCount === tables.length,
+          healthy: tableCount === 4,
           tableCount,
         },
         delivery: {
