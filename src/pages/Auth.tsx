@@ -16,7 +16,8 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string; displayName?: string }>({});
+  const [minecraftIgn, setMinecraftIgn] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; password?: string; displayName?: string; minecraftIgn?: string }>({});
 
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export default function Auth() {
   }, [user, navigate, from]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string; displayName?: string } = {};
+    const newErrors: { email?: string; password?: string; displayName?: string; minecraftIgn?: string } = {};
     
     if (!email) {
       newErrors.email = "Email is required";
@@ -48,6 +49,10 @@ export default function Auth() {
     
     if (!isLogin && displayName && displayName.length < 2) {
       newErrors.displayName = "Display name must be at least 2 characters";
+    }
+
+    if (!isLogin && minecraftIgn && !/^[a-zA-Z0-9_]{3,16}$/.test(minecraftIgn)) {
+      newErrors.minecraftIgn = "Invalid Minecraft username (3-16 chars, letters, numbers, underscore)";
     }
     
     setErrors(newErrors);
@@ -78,7 +83,7 @@ export default function Auth() {
         });
       }
     } else {
-      const { error } = await signUp(email, password, displayName || undefined);
+      const { error } = await signUp(email, password, displayName || undefined, minecraftIgn || undefined);
       setIsSubmitting(false);
       
       if (error) {
@@ -105,6 +110,7 @@ export default function Auth() {
     setEmail("");
     setPassword("");
     setDisplayName("");
+    setMinecraftIgn("");
     setErrors({});
   };
 
@@ -141,21 +147,40 @@ export default function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="displayName">Display Name (optional)</Label>
-                <Input
-                  id="displayName"
-                  type="text"
-                  autoComplete="name"
-                  placeholder="Steve"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  className="bg-muted border-border"
-                />
-                {errors.displayName && (
-                  <p className="text-xs text-destructive">{errors.displayName}</p>
-                )}
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="minecraftIgn">Minecraft Username</Label>
+                  <Input
+                    id="minecraftIgn"
+                    type="text"
+                    autoComplete="username"
+                    placeholder="Steve123"
+                    value={minecraftIgn}
+                    onChange={(e) => setMinecraftIgn(e.target.value)}
+                    className="bg-muted border-border"
+                  />
+                  {errors.minecraftIgn && (
+                    <p className="text-xs text-destructive">{errors.minecraftIgn}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">Used for product delivery in-game</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="displayName">Display Name (optional)</Label>
+                  <Input
+                    id="displayName"
+                    type="text"
+                    autoComplete="name"
+                    placeholder="Steve"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    className="bg-muted border-border"
+                  />
+                  {errors.displayName && (
+                    <p className="text-xs text-destructive">{errors.displayName}</p>
+                  )}
+                </div>
+              </>
             )}
 
             <div className="space-y-2">
