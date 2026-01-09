@@ -44,11 +44,13 @@ export default function Auth() {
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
+    mode: "onChange",
   });
 
   const signupForm = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: { email: "", password: "", displayName: "" },
+    mode: "onChange",
   });
 
   const handleLogin = async (data: LoginFormData) => {
@@ -131,6 +133,7 @@ export default function Auth() {
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="player@example.com"
                   {...loginForm.register("email")}
                   className="bg-muted border-border"
@@ -202,6 +205,7 @@ export default function Auth() {
                 <Input
                   id="signupEmail"
                   type="email"
+                  autoComplete="email"
                   placeholder="player@example.com"
                   {...signupForm.register("email")}
                   className="bg-muted border-border"
