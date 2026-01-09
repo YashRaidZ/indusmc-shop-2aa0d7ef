@@ -1,1 +1,4 @@
 project_id = "gjqykduvokbkjgqmgynt"
+
+[functions.rcon-delivery]
+verify_jwt = false
