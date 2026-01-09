@@ -10,6 +10,10 @@ import {
   X,
   Gamepad2,
   ChevronDown,
+  Clock,
+  FileText,
+  BarChart3,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +30,10 @@ const navItems = [
   { name: "Products", path: "/admin/products", icon: Package },
   { name: "Orders", path: "/admin/orders", icon: ShoppingCart },
   { name: "RCON Servers", path: "/admin/rcon", icon: Server },
+  { name: "Delivery Queue", path: "/admin/queue", icon: Clock },
+  { name: "Delivery Logs", path: "/admin/logs", icon: FileText },
+  { name: "Analytics", path: "/admin/analytics", icon: BarChart3 },
+  { name: "Settings", path: "/admin/settings", icon: Settings },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {

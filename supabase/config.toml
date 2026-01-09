@@ -2,3 +2,6 @@ project_id = "gjqykduvokbkjgqmgynt"
 
 [functions.rcon-delivery]
 verify_jwt = false
+
+[functions.player-listener]
+verify_jwt = false
